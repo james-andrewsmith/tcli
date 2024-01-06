@@ -7,16 +7,20 @@ import (
 	"strings"
 
 	"github.com/c4pt0r/tcli/utils"
+	"github.com/pingcap/kvproto/pkg/kvrpcpb"
 
 	"github.com/c4pt0r/tcli"
 
 	"github.com/c4pt0r/log"
-	"github.com/tikv/client-go/v2/tikv"
+	"github.com/tikv/client-go/v2/txnkv"
 	pd "github.com/tikv/pd/client"
 )
 
 func newTxnKVClient(pdAddr []string) *txnkvClient {
-	client, err := tikv.NewTxnClient(pdAddr)
+	client, err := txnkv.NewClient(
+		pdAddr,
+		txnkv.WithAPIVersion(kvrpcpb.APIVersion_V2),
+	)
 	if err != nil {
 		log.F(err)
 	}
@@ -27,7 +31,7 @@ func newTxnKVClient(pdAddr []string) *txnkvClient {
 }
 
 type txnkvClient struct {
-	txnClient *tikv.KVStore
+	txnClient *txnkv.Client
 	pdAddr    []string
 }
 
